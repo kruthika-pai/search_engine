@@ -1,0 +1,92 @@
+<head>
+<link href="//code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" rel="Stylesheet"/>
+<script src="//code.jquery.com/jquery-2.2.0.min.js"></script>
+<script src="//code.jquery.com/ui/1.10.2/jquery-ui.js" ></script>
+<title> PHP Solr Client </title>
+<style>
+     body {
+           background: Azure;
+     }
+    table{
+    table-layout: auto;
+    width: 100%;
+}
+    td{
+    border:1px solid #000;
+}
+</style>
+<script type="text/javascript">
+$(function() {
+    $("#autocomplete").autocomplete({
+        source:function(request, response) {
+            $.getJSON("{{url_for('autocomplete')}}",{
+                q: request.term, // in flask, "q" will be the argument to look for using request.args
+            }, function(data) {
+                response(data.matching_results); // matching_results from jsonify
+            });
+        },
+        minLength: 1,
+        select: function(event, ui) {
+            console.log(ui.item.value); // not in your question, but might help later
+        }
+    });
+})
+
+</script>
+</head>
+<body>
+    <div>
+        <h1 style="text-align:center;"> Homework 5: Search Engine </h1>
+        <br/>
+        <form accept-charset="utf-8" action="/search" method="post" style="text-align: center;">
+            <label>Enter the search query:</label>
+
+            <input name="autocomplete" type="text" id="autocomplete" class="form-control input-lg" value="{{ query }}"/>
+
+            <br/>
+            <br/>
+            <input type="radio" name="algorithm" value="lucene" /> Solr's Default - Lucene
+            <br/>
+            <input type="radio" name="algorithm" value="pagerank" /> Google's - PageRank
+            <br/>
+            <br/>
+            <input type="submit" />
+        </form>
+    </div>
+    <div>
+        {% if display_new %}
+        <h2>Did you mean: {{new_query}}</h2>
+        {% endif %}
+        <br/>
+          {% if results %}
+            <h2>Results</h2>
+            <br>
+            <div id="results">
+              <table class="table table-striped">
+
+                {% for result in results%}
+                  <tr>
+                      <td>
+                    <a href= {{result['url']}}>{{result['title']}}</a>
+                      <br/>
+                          <a href= {{result['url']}}>{{result['url']}}</a>
+                      <br/>
+                    {{ result['snippet'] }}
+                      <br/>
+                          <br/>
+                          <br/>
+                      </td>
+                  </tr>
+                {% endfor %}
+              </table>
+            </div>
+          {% endif %}
+        <br/>
+        {% if display %}
+        {% if not results %}
+        <h1>No Results</h1>
+        {% endif %}
+        {% endif %}
+    </div>
+
+</body>
